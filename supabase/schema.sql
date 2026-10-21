@@ -79,6 +79,12 @@ create policy "events alles"   on public.events  for all    to authenticated usi
 revoke all on public.players, public.matches, public.events from anon;
 grant select, insert, update on public.players, public.matches, public.events to authenticated;
 
+-- Ping für die Keep-Alive-Action (verhindert, dass das Gratis-Projekt pausiert).
+-- Liefert nur die aktuelle Uhrzeit, keine Daten.
+create or replace function public.ping() returns timestamptz
+language sql stable as $$ select now() $$;
+grant execute on function public.ping() to anon;
+
 -- ============================================================
 -- Admin-Rolle vergeben – E-Mail anpassen!
 -- (Nach dem Ausführen einmal in der App ab- und wieder anmelden.)
