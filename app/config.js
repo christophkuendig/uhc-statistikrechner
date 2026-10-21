@@ -7,4 +7,4 @@ export const SUPABASE_KEY = 'sb_publishable_CxOyaod5PrlgdpgC5_5ipA_EbAoDXY6';
 // E-Mail des gemeinsamen Team-Logins. Das Team gibt nur noch das Passwort ein.
 export const TEAM_EMAIL = 'uhc+herren3@kuendig.pro';
 
-export const TEAM_NAME = 'UHC';
+export const TEAM_NAME = 'Herren 3';
