@@ -156,7 +156,7 @@ a { color: var(--ice-deep); }
 .pagehead h1 { font-size: clamp(64px, 11vw, 150px); display: flex; flex-direction: column; gap: .04em; }
 .pagehead h1 span { padding-right: .06em; }
 .pagehead .head-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
-.pagehead .lead { color: var(--stage-soft); max-width: 46ch; }
+.pagehead h1 .outline, .login h1 .outline { font-size: .74em; }
 
 /* Kopfzeile: schwebende Glas-Pille */
 .topbar {
@@ -587,7 +587,6 @@ table.stats { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
   .pagehead { padding: calc(env(safe-area-inset-top) + 84px) 0 calc(4vw + 28px); }
   .pagehead .wrap { gap: 14px; }
   .pagehead h1 { font-size: 46px; }
-  .pagehead .lead { font-size: 14px; }
   .login h1 { font-size: 52px; }
   h2.d { font-size: 32px; }
   .sheet-head h2 { font-size: 28px; }

@@ -33,14 +33,13 @@ export const Icon = ({ name }) => html`
   <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d=${ICONS[name]} /></svg>`;
 
 // Seitenkopf als Flutlicht-Bühne: eine Zeile chrom, eine Zeile outline
-export function PageHead({ eyebrow, title, outline, digit, lead, extra, children }) {
+export function PageHead({ eyebrow, title, outline, digit, extra, children }) {
   return html`
     <header class="stage pagehead">
       ${digit != null && html`<span class="ghost-digit" aria-hidden="true">${digit}</span>`}
       <div class="wrap">
         ${eyebrow && html`<p class="eyebrow">${eyebrow}</p>`}
         <h1 class="d"><span class="chrome">${title}</span>${outline && html`<span class="outline">${outline}</span>`}</h1>
-        ${lead && html`<p class="lead">${lead}</p>`}
         ${children && html`<div class="head-actions">${children}</div>`}
         ${extra}
       </div>

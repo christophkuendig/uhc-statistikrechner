@@ -29,7 +29,6 @@ export function LoginView({ onLogin }) {
         <div class="intro">
           <p class="eyebrow">UHCevi Gossau</p>
           <h1 class="d"><span class="chrome">${TEAM_NAME}</span><span class="outline">Statistik</span></h1>
-          <p class="lead muted">Tore, Assists, Plus/Minus und Strafen – live von der Bank erfasst.</p>
         </div>
         <form onSubmit=${submit} class="glass stagebox">
           ${admin && html`

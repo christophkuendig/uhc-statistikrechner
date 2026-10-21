@@ -73,8 +73,7 @@ export function RosterView({ user }) {
     </li>`;
 
   return html`
-    <${PageHead} eyebrow=${`UHCevi Gossau · ${TEAM_NAME}`} title="Kader" outline=${`${active.length} aktiv`}
-      lead=${!user.isAdmin && 'Änderungen am Kader macht der Admin.'}>
+    <${PageHead} eyebrow=${`UHCevi Gossau · ${TEAM_NAME}`} title="Kader" outline=${`${active.length} aktiv`}>
       ${user.isAdmin && html`<button class="btn primary big" onClick=${() => setEditing('new')}>Spieler hinzufügen <span class="arr">→</span></button>`}
     <//>
     <section class="wrap content">

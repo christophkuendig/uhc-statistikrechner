@@ -18,8 +18,7 @@ export function MatchesView() {
 
   return html`
     <${PageHead} eyebrow=${`UHCevi Gossau · ${TEAM_NAME}`} title="Matches" outline="& Resultate"
-      digit=${TEAM_NAME.replace(/\D/g, '') || null}
-      lead="Auch für Matches, die bisher nur auf Papier erfasst sind: einfach das Datum anpassen.">
+      digit=${TEAM_NAME.replace(/\D/g, '') || null}>
       <button class="btn primary big" onClick=${() => navigate('#/match/new')}>Neues Match <span class="arr">→</span></button>
     <//>
     <div class="wrap content">
