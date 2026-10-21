@@ -580,3 +580,73 @@ table.stats { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
   .stats th:first-child, .stats td:first-child { padding-left: 16px; }
   .stats th:last-child, .stats td:last-child { padding-right: 16px; }
 }
+
+/* Mobile: alles eine Stufe kompakter */
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  .pagehead { padding: calc(env(safe-area-inset-top) + 84px) 0 calc(4vw + 28px); }
+  .pagehead .wrap { gap: 14px; }
+  .pagehead h1 { font-size: 46px; }
+  .pagehead .lead { font-size: 14px; }
+  .login h1 { font-size: 52px; }
+  h2.d { font-size: 32px; }
+  .sheet-head h2 { font-size: 28px; }
+  .step-q { font-size: 22px; }
+  .content { padding-top: 24px; }
+  .content > .sec-head { margin-top: 36px; }
+  .sec-head > div { gap: 6px; }
+  .eyebrow, .meta-label { font-size: 11px; letter-spacing: .12em; }
+  .ghost-digit { font-size: 220px; }
+
+  .topbar { padding: 6px 6px 6px 16px; }
+  .brand .d { font-size: 21px; }
+  .brand .c { font-size: 12px; }
+  .sync { padding: 8px 10px; font-size: 10px; }
+
+  .btn { padding: 12px 18px; font-size: 14px; }
+  .btn.big { padding: 14px 20px; font-size: 15px; }
+  .icon-btn { width: 40px; height: 40px; }
+  .seg button { min-height: 36px; padding: 6px 12px; font-size: 13px; }
+  .chip { padding: 8px 14px; font-size: 13px; }
+
+  .matchstage { padding: calc(env(safe-area-inset-top) + 80px) 0 calc(6vw + 28px); }
+  .matchstage.compact { padding-top: calc(env(safe-area-inset-top) + 76px); padding-bottom: calc(6vw + 16px); }
+  .matchstage .wrap, .matchstage.compact .wrap { gap: 14px; }
+  .scoreline .score, .matchstage.compact .scoreline .score { font-size: 60px; }
+  .scoreline .side .c { font-size: 15px; }
+  .team-tag { font-size: 12px; padding: 4px 12px 3px; }
+
+  .event-buttons { gap: 10px; }
+  .event-buttons .goal { padding: 20px; font-size: 17px; }
+  .event-buttons .btn { padding: 16px; font-size: 15px; }
+
+  .match-card { gap: 12px; padding: 16px 18px; }
+  .match-card .date { font-size: 24px; }
+  .match-card .opp .c { font-size: 17px; }
+  .result { min-width: 54px; font-size: 20px; padding: 7px 10px 5px; }
+  .badge { padding: 5px 9px; font-size: 10px; }
+
+  .kpis > div { padding: 14px 16px; gap: 6px; }
+  .kpis strong { font-size: 44px; }
+
+  .num { font-size: 20px; }
+  .player-row, .event-row { padding: 12px 16px; gap: 12px; }
+  .ev-icon { width: 34px; height: 34px; font-size: 18px; }
+  .events small { font-size: 12px; }
+  .player-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; }
+  .player-btn { min-height: 64px; border-radius: 16px; }
+  .player-btn .num { font-size: 24px; }
+  .player-btn .name { font-size: 12px; }
+  .stats td.rank { font-size: 18px; }
+  .stats td.pts { font-size: 20px; }
+  .stats th, .stats td { padding: 10px 6px; font-size: 14px; }
+  .stats th { font-size: 10px; }
+  .setup-list li { padding: 8px 10px 8px 16px; }
+  .setup-list .num { font-size: 18px; }
+  .seg.small button { min-width: 30px; min-height: 30px; font-size: 14px; }
+
+  .tabbar a { padding: 6px 0 5px; font-size: 10px; }
+  .tabbar svg { width: 18px; height: 18px; }
+  .foot { padding-top: calc(4vw + 24px); }
+  .foot .club, .foot .who { font-size: 13px; }
+}
