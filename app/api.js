@@ -90,7 +90,9 @@ async function rest(path, { method = 'GET', body, prefer } = {}) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `Fehler ${res.status}`);
   }
-  return res.status === 204 ? null : res.json();
+  // Upserts mit return=minimal liefern 201 ohne Inhalt
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 export const fetchAll = (table) => rest(`${table}?select=*`);
