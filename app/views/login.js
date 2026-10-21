@@ -23,23 +23,30 @@ export function LoginView({ onLogin }) {
   }
 
   return html`
-    <main class="login">
-      <h1>${TEAM_NAME} <span>Statistik</span></h1>
-      <form onSubmit=${submit} class="card">
-        ${admin && html`
-          <label>E-Mail
-            <input type="email" autocomplete="username" required value=${email} onInput=${(e) => setEmail(e.target.value)} />
-          </label>`}
-        <label>${admin ? 'Passwort' : 'Team-Passwort'}
-          <input type="password" autocomplete="current-password" required value=${password}
-            onInput=${(e) => setPassword(e.target.value)} />
-        </label>
-        ${error && html`<p class="error">${error}</p>`}
-        <button class="btn primary big" disabled=${busy}>${busy ? 'Anmelden…' : 'Anmelden'}</button>
-        ${TEAM_EMAIL && html`
-          <button type="button" class="link" onClick=${() => setAdmin(!admin)}>
-            ${admin ? 'Mit Team-Passwort anmelden' : 'Als Admin anmelden'}
-          </button>`}
-      </form>
+    <main class="stage login">
+      <span class="ghost-digit" aria-hidden="true">${TEAM_NAME.replace(/\D/g, '') || 'U'}</span>
+      <div class="wrap">
+        <div class="intro">
+          <p class="eyebrow">UHCevi Gossau</p>
+          <h1 class="d"><span class="chrome">${TEAM_NAME}</span><span class="outline">Statistik</span></h1>
+          <p class="lead muted">Tore, Assists, Plus/Minus und Strafen – live von der Bank erfasst.</p>
+        </div>
+        <form onSubmit=${submit} class="glass stagebox">
+          ${admin && html`
+            <label>E-Mail
+              <input type="email" autocomplete="username" required value=${email} onInput=${(e) => setEmail(e.target.value)} />
+            </label>`}
+          <label>${admin ? 'Passwort' : 'Team-Passwort'}
+            <input type="password" autocomplete="current-password" required value=${password}
+              onInput=${(e) => setPassword(e.target.value)} />
+          </label>
+          ${error && html`<p class="error" role="alert">${error}</p>`}
+          <button class="btn primary big" disabled=${busy}>${busy ? 'Anmelden…' : html`Anmelden <span class="arr">→</span>`}</button>
+          ${TEAM_EMAIL && html`
+            <button type="button" class="link" onClick=${() => setAdmin(!admin)}>
+              ${admin ? 'Mit Team-Passwort anmelden' : 'Als Admin anmelden'}
+            </button>`}
+        </form>
+      </div>
     </main>`;
 }

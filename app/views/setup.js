@@ -2,7 +2,7 @@
 import { html, useState } from '../../vendor/preact-htm.module.js';
 import * as store from '../store.js';
 import { seasonOf } from '../stats.js';
-import { byNumber, navigate, today } from '../ui.js';
+import { PageHead, SecHead, byNumber, navigate, today } from '../ui.js';
 
 const LINE_COUNT = 4;
 
@@ -59,8 +59,9 @@ export function SetupView({ id }) {
   }
 
   return html`
-    <section>
-      <h1>${isNew ? 'Neues Match' : 'Match bearbeiten'}</h1>
+    <${PageHead} eyebrow=${isNew ? 'Spieltag vorbereiten' : draft.opponent || 'Match'} title=${isNew ? 'Neues' : 'Match'}
+      outline=${isNew ? 'Match' : 'bearbeiten'} />
+    <section class="wrap content">
       <div class="card form">
         <label>Gegner
           <input value=${draft.opponent} placeholder="z.B. UHC Muster" onInput=${(e) => setDraft({ ...draft, opponent: e.target.value })} />
@@ -76,19 +77,19 @@ export function SetupView({ id }) {
         </div>
       </div>
 
-      <h2>Aufgebot & Linien <small>${draft.roster.length} Spieler</small></h2>
+      <${SecHead} eyebrow="Aufgebot" title="Spieler & Linien" aside=${html`<span class="count">${draft.roster.length} Spieler</span>`} />
       ${players.length === 0 && html`<p class="muted">Noch keine Spieler im Kader. <a href="#/kader">Kader erfassen</a></p>`}
-      <ul class="list setup-list">
+      <ul class="list card setup-list">
         ${players.map((p) => {
           const line = lineOf(p.id);
           return html`
             <li class=${roster.has(p.id) ? '' : 'out'}>
               <label class="check">
                 <input type="checkbox" checked=${roster.has(p.id)} onChange=${() => toggleRoster(p.id)} />
-                <span class="num">${p.number ?? '–'}</span> ${p.name} <small class="muted">${p.position}</small>
+                <span class="num">${p.number ?? '–'}</span> <span class="pname">${p.name}</span> <small class="pos">${p.position}</small>
               </label>
               ${p.position !== 'G' && html`
-                <div class="seg small">
+                <div class="seg small" role="group" aria-label=${`Linie ${p.name}`}>
                   <button type="button" class=${line === -1 ? 'on' : ''} onClick=${() => setLine(p.id, -1)}>–</button>
                   ${Array.from({ length: LINE_COUNT }, (_, i) => html`
                     <button type="button" class=${line === i ? 'on' : ''} onClick=${() => setLine(p.id, i)}>${i + 1}</button>`)}
@@ -99,7 +100,7 @@ export function SetupView({ id }) {
 
       <div class="actions sticky">
         ${isNew
-          ? html`<button class="btn primary big" onClick=${() => save(true)}>Speichern & Live erfassen</button>`
+          ? html`<button class="btn primary big" onClick=${() => save(true)}>Speichern & Live erfassen <span class="arr">→</span></button>`
           : html`<button class="btn primary big" onClick=${() => save(false)}>Speichern</button>`}
       </div>
     </section>`;

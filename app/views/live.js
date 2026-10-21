@@ -3,7 +3,7 @@ import { html, useState } from '../../vendor/preact-htm.module.js';
 import * as store from '../store.js';
 import { TEAM_NAME } from '../config.js';
 import { PENALTIES, penaltyLabel, score, sortEvents } from '../stats.js';
-import { PlayerGrid, Sheet, byNumber, navigate, playerById, playerLabel } from '../ui.js';
+import { Icon, PlayerGrid, SecHead, Sheet, byNumber, navigate, playerById, playerLabel } from '../ui.js';
 
 const PERIODS = [
   { value: 1, label: '1.' },
@@ -11,6 +11,31 @@ const PERIODS = [
   { value: 3, label: '3.' },
   { value: 4, label: 'Verl.' },
 ];
+// Anzeigetafel als Flutlicht-Bühne – geteilt von Live-Erfassung und Matchbericht
+export function MatchStage({ match, score: s, meta, digit, compact, children }) {
+  return html`
+    <section class=${`stage matchstage ${compact ? 'compact' : ''}`}>
+      <span class="ghost-digit" aria-hidden="true">${digit ?? s.us}</span>
+      <div class="wrap">
+        <div class="meta-line">${meta}</div>
+        <div class="scoreline">
+          <div class="side">
+            <span class="meta-label">${match.home ? 'Heim' : 'Gast'}</span>
+            <span class="team-tag">${TEAM_NAME}</span>
+          </div>
+          <div class="d score lit" aria-label=${`${s.us} zu ${s.them}`}>
+            <span>${s.us}</span><span class="sep">:</span><span class="outline">${s.them}</span>
+          </div>
+          <div class="side them">
+            <span class="meta-label">${match.home ? 'Gast' : 'Heim'}</span>
+            <span class="c">${match.opponent}</span>
+          </div>
+        </div>
+        ${children}
+      </div>
+    </section>`;
+}
+
 const periodLabel = (v) => (v === 4 ? 'Verlängerung' : v ? `${v}. Drittel` : '');
 
 // Aktuelle Linie / Drittel überleben ein Neuladen der Seite
@@ -39,7 +64,7 @@ export function LiveView({ id }) {
   const [live, setLive] = useLiveState(id);
   const [flow, setFlow] = useState(null); // { draft, step }
 
-  if (!match) return html`<p>Match nicht gefunden. <a href="#/">Zurück</a></p>`;
+  if (!match) return html`<div class="wrap content"><p>Match nicht gefunden. <a href="#/">Zurück</a></p></div>`;
 
   const roster = match.roster.map(playerById).filter(Boolean).sort(byNumber);
   const fieldPlayers = roster.filter((p) => p.position !== 'G');
@@ -102,14 +127,14 @@ export function LiveView({ id }) {
     const d = flow.draft;
     if (stepName === 'scorer') {
       return html`
-        <p class="step-q">Wer hat das Tor geschossen?</p>
+        <p class="d step-q">Wer hat das Tor geschossen?</p>
         <${PlayerGrid} players=${fieldPlayers.concat(roster.filter((p) => p.position === 'G'))}
           selected=${d.scorer_id} onPick=${(pid) => next({ scorer_id: pid })} />
-        <button class="btn ghost full" onClick=${() => next({ scorer_id: null })}>Unbekannt / Eigentor Gegner</button>`;
+        <button class="btn dashed full" onClick=${() => next({ scorer_id: null })}>Unbekannt / Eigentor Gegner</button>`;
     }
     if (stepName === 'assist') {
       return html`
-        <p class="step-q">Assist?</p>
+        <p class="d step-q">Assist?</p>
         <button class="btn full" onClick=${() => next({ assist_id: null })}>Kein Assist</button>
         <${PlayerGrid} players=${roster.filter((p) => p.id !== d.scorer_id)}
           selected=${d.assist_id} onPick=${(pid) => next({ assist_id: pid })} />`;
@@ -125,9 +150,9 @@ export function LiveView({ id }) {
       ].filter((g) => g.players.length);
       const n = selected.size;
       return html`
-        <p class="step-q">Wer war auf dem Feld? <small>(für +/−, ohne Goalie)</small></p>
+        <p class="d step-q">Wer war auf dem Feld? <small>Für +/−, ohne Goalie</small></p>
         ${groups.map((g) => html`
-          <h3>${g.title}</h3>
+          <h3 class="meta-label group-label">${g.title}</h3>
           <${PlayerGrid} players=${g.players} selected=${selected} onPick=${toggleOnIce} />`)}
         <p class=${n > 6 || n === 0 ? 'warn' : 'muted'}>
           ${n} Feldspieler ausgewählt${n > 6 ? ' – mehr als 6, stimmt das?' : ''}
@@ -135,13 +160,13 @@ export function LiveView({ id }) {
     }
     if (stepName === 'player') {
       return html`
-        <p class="step-q">Wer hat die Strafe erhalten?</p>
+        <p class="d step-q">Wer hat die Strafe erhalten?</p>
         <${PlayerGrid} players=${roster} selected=${d.player_id} onPick=${(pid) => next({ player_id: pid })} />
-        <button class="btn ghost full" onClick=${() => next({ player_id: null })}>Teamstrafe / Bank</button>`;
+        <button class="btn dashed full" onClick=${() => next({ player_id: null })}>Teamstrafe / Bank</button>`;
     }
     if (stepName === 'penalty') {
       return html`
-        <p class="step-q">Welche Strafe?</p>
+        <p class="d step-q">Welche Strafe?</p>
         <div class="choice-grid">
           ${PENALTIES.map((p) => html`
             <button class=${`btn big ${d.penalty === p.code ? 'primary' : ''}`} onClick=${() => next({ penalty: p.code })}>${p.label}</button>`)}
@@ -155,45 +180,42 @@ export function LiveView({ id }) {
   const needsConfirm = stepName === 'onice';
 
   return html`
-    <section class="live">
-      <div class="scoreboard">
-        <button class="icon-btn" aria-label="Zum Matchbericht" onClick=${() => navigate(`#/match/${id}`)}>‹</button>
-        <div class="score">
-          <span class="team">${TEAM_NAME}</span>
-          <strong>${s.us} : ${s.them}</strong>
-          <span class="team">${match.opponent}</span>
+    <${MatchStage} match=${match} score=${s} digit=${live.period === 4 ? 'V' : live.period} compact
+      meta=${html`
+        <button class="icon-btn" aria-label="Zum Matchbericht" onClick=${() => navigate(`#/match/${id}`)}><${Icon} name="back" /></button>
+        <span class="live-badge">LIVE</span>
+        <span class="eyebrow">${periodLabel(live.period)}</span>`}>
+      <div class="live-controls">
+        <div class="seg full" role="group" aria-label="Drittel">
+          ${PERIODS.map((p) => html`
+            <button class=${live.period === p.value ? 'on' : ''} onClick=${() => setLive({ period: p.value })}>${p.label}</button>`)}
         </div>
+        ${lines.length > 0 && html`
+          <div class="ctl">
+            <span class="meta-label">Linie auf dem Feld</span>
+            <div class="chips" role="group" aria-label="Linie auf dem Feld">
+              ${lines.map((l, i) => html`
+                <button class=${`chip ${live.line === i ? 'on' : ''}`} onClick=${() => selectLine(i)}>L${i + 1}</button>`)}
+            </div>
+          </div>`}
       </div>
+    <//>
 
-      <div class="seg full">
-        ${PERIODS.map((p) => html`
-          <button class=${live.period === p.value ? 'on' : ''} onClick=${() => setLive({ period: p.value })}>${p.label}</button>`)}
-      </div>
-
-      ${lines.length > 0 && html`
-        <div class="lines">
-          <span class="muted">Linie auf dem Feld:</span>
-          <div class="seg">
-            ${lines.map((l, i) => html`
-              <button class=${live.line === i ? 'on' : ''} onClick=${() => selectLine(i)}>L${i + 1}</button>`)}
-          </div>
-        </div>`}
-
+    <section class="wrap content live">
       <div class="event-buttons">
-        <button class="btn big goal" onClick=${() => start('goal_for')}>Tor ${TEAM_NAME}</button>
-        <button class="btn big against" onClick=${() => start('goal_against')}>Gegentor</button>
-        <button class="btn big penalty" onClick=${() => start('penalty')}>Strafe</button>
+        <button class="btn primary big goal" onClick=${() => start('goal_for')}>Tor ${TEAM_NAME}</button>
+        <button class="btn ink big" onClick=${() => start('goal_against')}>Gegentor</button>
+        <button class="btn big" onClick=${() => start('penalty')}>Strafe</button>
       </div>
 
-      <h2>Verlauf</h2>
+      <${SecHead} eyebrow="Tippen zum Korrigieren" title="Verlauf" />
       ${events.length === 0 && html`<p class="muted">Noch keine Einträge. Tippe auf einen Eintrag, um ihn zu korrigieren.</p>`}
-      <ul class="list events">
+      <ul class="list card events">
         ${[...events].reverse().map((e) => html`
           <li><button class="event-row" onClick=${() => edit(e)}><${EventText} event=${e} /></button></li>`)}
       </ul>
 
-      <button class="btn full" onClick=${() => navigate(`#/match/${id}`)}>Fertig – zum Matchbericht</button>
-
+      <button class="btn full" onClick=${() => navigate(`#/match/${id}`)}>Fertig – zum Matchbericht <span class="arr">→</span></button>
       ${flow && html`
         <${Sheet} title=${`${titles[flow.draft.type]}${flow.isNew ? '' : ' bearbeiten'}`} onClose=${() => setFlow(null)}
           footer=${html`

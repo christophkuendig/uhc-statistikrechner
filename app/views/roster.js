@@ -1,7 +1,8 @@
 // Kader: alle sehen ihn, nur der Admin kann ihn ändern
 import { html, useState } from '../../vendor/preact-htm.module.js';
 import * as store from '../store.js';
-import { Sheet, byNumber } from '../ui.js';
+import { TEAM_NAME } from '../config.js';
+import { PageHead, SecHead, Sheet, byNumber } from '../ui.js';
 
 const POSITIONS = [
   { code: 'S', label: 'Stürmer' },
@@ -50,7 +51,7 @@ function PlayerForm({ player, onClose }) {
           </label>`}
         <div class="actions">
           ${player && html`<button type="button" class="btn danger" onClick=${remove}>Löschen</button>`}
-          <button class="btn primary">Speichern</button>
+          <button class="btn primary">Speichern <span class="arr">→</span></button>
         </div>
       </form>
     <//>`;
@@ -67,18 +68,21 @@ export function RosterView({ user }) {
       <button class="player-row" disabled=${!user.isAdmin} onClick=${() => setEditing(p)}>
         <span class="num">${p.number ?? '–'}</span>
         <span class="name">${p.name}</span>
-        <span class="muted">${positionLabel(p.position)}</span>
+        <span class="pos">${positionLabel(p.position)}</span>
       </button>
     </li>`;
 
   return html`
-    <section>
-      <h1>Kader <small>${active.length} aktiv</small></h1>
-      ${user.isAdmin
-        ? html`<button class="btn primary full" onClick=${() => setEditing('new')}>+ Spieler hinzufügen</button>`
-        : html`<p class="hint">Änderungen am Kader macht der Admin.</p>`}
-      <ul class="list">${active.map(row)}</ul>
-      ${inactive.length > 0 && html`<h2>Inaktiv</h2><ul class="list">${inactive.map(row)}</ul>`}
+    <${PageHead} eyebrow=${`UHCevi Gossau · ${TEAM_NAME}`} title="Kader" outline=${`${active.length} aktiv`}
+      lead=${!user.isAdmin && 'Änderungen am Kader macht der Admin.'}>
+      ${user.isAdmin && html`<button class="btn primary big" onClick=${() => setEditing('new')}>Spieler hinzufügen <span class="arr">→</span></button>`}
+    <//>
+    <section class="wrap content">
+      <${SecHead} eyebrow="Aufgebot" title="Aktiv" aside=${html`<span class="count">${active.length} Spieler</span>`} />
+      <ul class="list card">${active.map(row)}</ul>
+      ${inactive.length > 0 && html`
+        <${SecHead} eyebrow="Ehemalige & Pausierende" title="Inaktiv" />
+        <ul class="list card">${inactive.map(row)}</ul>`}
       ${editing && html`<${PlayerForm} player=${editing === 'new' ? null : editing} onClose=${() => setEditing(null)} />`}
     </section>`;
 }

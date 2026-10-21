@@ -2,7 +2,8 @@
 import { html, useState } from '../../vendor/preact-htm.module.js';
 import * as store from '../store.js';
 import { playerStats, seasonOf, teamSummary } from '../stats.js';
-import { today } from '../ui.js';
+import { TEAM_NAME } from '../config.js';
+import { PageHead, SecHead, today } from '../ui.js';
 
 const COLUMNS = [
   { key: 'number', label: '#', get: (r) => r.player.number ?? 999, asc: true },
@@ -33,7 +34,7 @@ export function StatsTable({ rows, showGp = true }) {
 
   if (!rows.length) return html`<p class="muted">Keine Daten.</p>`;
   return html`
-    <div class="table-wrap">
+    <div class="table-wrap card">
       <table class="stats">
         <thead><tr>
           ${cols.map((c) => html`
@@ -43,13 +44,13 @@ export function StatsTable({ rows, showGp = true }) {
         <tbody>
           ${sorted.map((r) => html`
             <tr>
-              <td class="muted">${r.player.number ?? ''}</td>
-              <td class="left">${r.player.name}</td>
+              <td class="rank">${r.player.number ?? ''}</td>
+              <td class="left name">${r.player.name}</td>
               ${showGp && html`<td>${r.gp}</td>`}
               <td>${r.goals}</td>
               <td>${r.assists}</td>
-              <td><strong>${r.points}</strong></td>
-              <td class=${r.plusMinus > 0 ? 'pos' : r.plusMinus < 0 ? 'neg' : ''}>${fmtPm(r.plusMinus)}</td>
+              <td class="pts">${r.points}</td>
+              <td class=${r.plusMinus < 0 ? 'neg' : ''}>${fmtPm(r.plusMinus)}</td>
               <td>${r.pim}</td>
             </tr>`)}
         </tbody>
@@ -92,23 +93,23 @@ export function StatsView() {
   const team = teamSummary(matches, eventsByMatch);
 
   return html`
-    <section>
-      <div class="row between">
-        <h1>Statistik</h1>
-        <select value=${season} onChange=${(e) => setSeason(e.target.value)}>
-          ${seasons.map((s) => html`<option value=${s}>Saison ${s}</option>`)}
-        </select>
-      </div>
+    <${PageHead} eyebrow=${`${TEAM_NAME} · Saisonbilanz`} title="Statistik" outline=${`Saison ${season}`}
+      extra=${html`
+        <div class="kpis">
+          <div class="fx"><span class="meta-label">Spiele</span><strong class="d lit">${team.played}</strong></div>
+          <div class="fx"><span class="meta-label">Siege · Unent. · Niederl.</span><strong class="d chrome">${team.w}-${team.d}-${team.l}</strong></div>
+          <div class="fx wide"><span class="meta-label">Torverhältnis</span><strong class="d"><span class="lit">${team.gf}</span><span class="outline">:${team.ga}</span></strong></div>
+        </div>`}>
+      <select value=${season} aria-label="Saison wählen" onChange=${(e) => setSeason(e.target.value)}>
+        ${seasons.map((s) => html`<option value=${s}>Saison ${s}</option>`)}
+      </select>
+    <//>
 
-      <div class="kpis">
-        <div><strong>${team.played}</strong><span>Spiele</span></div>
-        <div><strong>${team.w}-${team.d}-${team.l}</strong><span>S-U-N</span></div>
-        <div><strong>${team.gf}:${team.ga}</strong><span>Tore</span></div>
-      </div>
-
+    <section class="wrap content">
+      <${SecHead} eyebrow="Skorerliste" title="Spieler"
+        aside=${rows.length > 0 && html`
+          <button class="sec-link" onClick=${() => exportCsv(season, rows)}>Excel-Export (CSV) <span class="arr">→</span></button>`} />
       <${StatsTable} rows=${rows} />
       <p class="hint">Sp = Spiele, T = Tore, A = Assists, P = Punkte, SM = Strafminuten. Tippe auf eine Spalte zum Sortieren.</p>
-      ${rows.length > 0 && html`
-        <button class="btn full" onClick=${() => exportCsv(season, rows)}>Als Excel-Datei (CSV) herunterladen</button>`}
     </section>`;
 }

@@ -5,7 +5,8 @@ const TIMEOUT_MS = 3000;
 const SHELL = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'icon-192.png',
   'vendor/preact-htm.module.js',
-  'app/main.js', 'app/api.js', 'app/config.js', 'app/store.js', 'app/stats.js', 'app/ui.js',
+  'fonts/saira.woff2', 'fonts/saira-italic.woff2', 'fonts/inter.woff2',
+  'app/main.js', 'app/api.js', 'app/config.js', 'app/store.js', 'app/stats.js', 'app/ui.js', 'app/effects.js',
   'app/views/login.js', 'app/views/matches.js', 'app/views/setup.js', 'app/views/live.js',
   'app/views/report.js', 'app/views/stats.js', 'app/views/roster.js',
 ];
