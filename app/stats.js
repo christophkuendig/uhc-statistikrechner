@@ -63,7 +63,7 @@ export function teamSummary(matches, eventsByMatch) {
   return { played: matches.length, w, d, l, gf, ga };
 }
 
-// Event-Reihenfolge: Drittel, dann Spielzeit, dann Erfassungszeit
+// Event-Reihenfolge: Hälfte, dann Spielzeit, dann Erfassungszeit
 export function sortEvents(events) {
   const t = (e) => {
     const [mm, ss] = (e.game_time || '').split(':').map(Number);

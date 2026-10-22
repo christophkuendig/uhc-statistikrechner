@@ -8,8 +8,6 @@ import { Icon, PlayerGrid, SecHead, Sheet, byNumber, navigate, playerById, playe
 const PERIODS = [
   { value: 1, label: '1.' },
   { value: 2, label: '2.' },
-  { value: 3, label: '3.' },
-  { value: 4, label: 'Verl.' },
 ];
 // Anzeigetafel als Flutlicht-Bühne – geteilt von Live-Erfassung und Matchbericht
 export function MatchStage({ match, score: s, meta, digit, compact, children }) {
@@ -36,9 +34,9 @@ export function MatchStage({ match, score: s, meta, digit, compact, children }) 
     </section>`;
 }
 
-const periodLabel = (v) => (v === 4 ? 'Verlängerung' : v ? `${v}. Drittel` : '');
+const periodLabel = (v) => (v ? `${v}. Hälfte` : '');
 
-// Aktuelle Linie / Drittel überleben ein Neuladen der Seite
+// Aktuelle Linie / Hälfte überleben ein Neuladen der Seite
 function useLiveState(matchId) {
   const key = `uhc.live.${matchId}`;
   const [state, setState] = useState(() => {
@@ -180,13 +178,13 @@ export function LiveView({ id }) {
   const needsConfirm = stepName === 'onice';
 
   return html`
-    <${MatchStage} match=${match} score=${s} digit=${live.period === 4 ? 'V' : live.period} compact
+    <${MatchStage} match=${match} score=${s} digit=${live.period} compact
       meta=${html`
         <button class="icon-btn" aria-label="Zum Matchbericht" onClick=${() => navigate(`#/match/${id}`)}><${Icon} name="back" /></button>
         <span class="live-badge">LIVE</span>
         <span class="eyebrow">${periodLabel(live.period)}</span>`}>
       <div class="live-controls">
-        <div class="seg full" role="group" aria-label="Drittel">
+        <div class="seg full" role="group" aria-label="Hälfte">
           ${PERIODS.map((p) => html`
             <button class=${live.period === p.value ? 'on' : ''} onClick=${() => setLive({ period: p.value })}>${p.label}</button>`)}
         </div>
@@ -228,7 +226,7 @@ export function LiveView({ id }) {
           ${renderStep()}
           ${(lastStep || stepName === 'onice') && html`
             <div class="row meta">
-              <label>Drittel
+              <label>Hälfte
                 <select value=${flow.draft.period ?? ''} onChange=${(e) => setDraft({ period: Number(e.target.value) || null })}>
                   ${PERIODS.map((p) => html`<option value=${p.value}>${periodLabel(p.value)}</option>`)}
                 </select>
