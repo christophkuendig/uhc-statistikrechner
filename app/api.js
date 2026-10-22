@@ -97,6 +97,22 @@ async function rest(path, { method = 'GET', body, prefer } = {}) {
 
 export const fetchAll = (table) => rest(`${table}?select=*`);
 
+// Supabase Edge Function aufrufen (z.B. "import-games")
+export async function invoke(name, body) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${await accessToken()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || `Fehler ${res.status}`);
+  return data;
+}
+
 export const upsert = (table, rows) =>
   rest(`${table}?on_conflict=id`, {
     method: 'POST',

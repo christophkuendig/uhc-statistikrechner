@@ -50,6 +50,10 @@ create table if not exists public.events (
 
 create index if not exists events_match_id_idx on public.events (match_id);
 
+-- Spiel-ID bei swiss unihockey (z.B. "su:1106069") – vom Spielplan-Import gesetzt,
+-- damit ein erneuter Import keine Duplikate anlegt.
+alter table public.matches add column if not exists external_id text unique;
+
 -- ============================================================
 -- Zugriffsrechte (Row Level Security)
 -- Nur eingeloggte Benutzer (Team-Login / Admin) sehen Daten.

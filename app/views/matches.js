@@ -1,10 +1,33 @@
-import { html } from '../../vendor/preact-htm.module.js';
+import { html, useState } from '../../vendor/preact-htm.module.js';
+import * as api from '../api.js';
 import * as store from '../store.js';
-import { TEAM_NAME } from '../config.js';
+import { TEAM_NAME, SU_TEAM_ID } from '../config.js';
 import { score, seasonOf } from '../stats.js';
 import { PageHead, SecHead, formatDate, navigate, today } from '../ui.js';
 
-export function MatchesView() {
+// Spielplan der aktuellen Saison von swiss unihockey holen (nur Admin)
+function ImportButton({ onResult }) {
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    onResult(null);
+    try {
+      const r = await api.invoke('import-games', { team_id: SU_TEAM_ID });
+      const parts = [`${r.created} neu`, `${r.updated} aktualisiert`];
+      if (r.linked) parts.push(`${r.linked} mit bestehenden verknüpft`);
+      onResult({ ok: true, text: `Spielplan ${r.season} importiert: ${parts.join(', ')}.` });
+      await store.sync();
+    } catch (e) {
+      onResult({ ok: false, text: `Import fehlgeschlagen: ${e.message}` });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return html`<button class="btn big" disabled=${busy} onClick=${run}>${busy ? 'Importiere…' : 'Spielplan importieren'}</button>`;
+}
+
+export function MatchesView({ user }) {
+  const [importResult, setImportResult] = useState(null);
   const matches = store.list('matches').sort((a, b) => b.date.localeCompare(a.date));
   const currentSeason = seasonOf(today());
 
@@ -20,8 +43,10 @@ export function MatchesView() {
     <${PageHead} eyebrow=${`UHCevi Gossau · ${TEAM_NAME}`} title="Matches" outline="& Resultate"
       digit=${TEAM_NAME.replace(/\D/g, '') || null}>
       <button class="btn primary big" onClick=${() => navigate('#/match/new')}>Neues Match <span class="arr">→</span></button>
+      ${user?.isAdmin && !user.demo && SU_TEAM_ID && html`<${ImportButton} onResult=${setImportResult} />`}
     <//>
     <div class="wrap content">
+      ${importResult && html`<p class=${importResult.ok ? 'muted' : 'error'} role="status">${importResult.text}</p>`}
       ${seasons.map((season) => {
         const list = bySeason.get(season);
         return html`

@@ -8,3 +8,7 @@ export const SUPABASE_KEY = 'sb_publishable_CxOyaod5PrlgdpgC5_5ipA_EbAoDXY6';
 export const TEAM_EMAIL = 'uhc@kuendig.pro';
 
 export const TEAM_NAME = 'Herren 3';
+
+// Team-ID bei swiss unihockey (UHCevi Gossau III) – bleibt über die Saisons gleich.
+// Für den Spielplan-Import (Edge Function "import-games").
+export const SU_TEAM_ID = 428001;

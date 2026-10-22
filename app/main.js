@@ -31,7 +31,7 @@ function route(hash, user) {
   if (a === 'match' && b) return html`<${ReportView} id=${b} user=${user} />`;
   if (a === 'stats') return html`<${StatsView} />`;
   if (a === 'kader') return html`<${RosterView} user=${user} />`;
-  return html`<${MatchesView} />`;
+  return html`<${MatchesView} user=${user} />`;
 }
 
 function App() {
