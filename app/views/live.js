@@ -70,6 +70,14 @@ export function LiveView({ id }) {
   const s = score(events);
   const lines = match.lines.filter((l) => l.length);
 
+  // Block eines Spielers: die aktive Linie, falls er dort steht, sonst seine erste Linie
+  function blockOf(pid) {
+    if (!pid) return null;
+    if ((lines[live.line] || []).includes(pid)) return live.line;
+    const idx = lines.findIndex((l) => l.includes(pid));
+    return idx >= 0 ? idx : null;
+  }
+
   function selectLine(idx) {
     if (idx !== live.line) setLive({ line: idx, prevLine: live.line });
   }
@@ -91,9 +99,9 @@ export function LiveView({ id }) {
   function next(patch = {}) {
     let draft = { ...flow.draft, ...patch };
     const nextStep = flow.step + 1;
-    // Beim Wechsel zur Feldspieler-Auswahl: aktuelle Linie + Torschütze/Assist vorauswählen
+    // Beim Wechsel zur Feldspieler-Auswahl: Block des Torschützen (sonst aktuelle Linie) + Torschütze/Assist vorauswählen
     if (steps[nextStep] === 'onice' && flow.isNew && !flow.onIceSeeded) {
-      const pre = new Set(lines[live.line] || []);
+      const pre = new Set(lines[blockOf(draft.scorer_id) ?? live.line] || []);
       if (draft.scorer_id) pre.add(draft.scorer_id);
       if (draft.assist_id) pre.add(draft.assist_id);
       draft.on_ice = [...pre];
@@ -131,20 +139,30 @@ export function LiveView({ id }) {
         <button class="btn dashed full" onClick=${() => next({ scorer_id: null })}>Unbekannt / Eigentor Gegner</button>`;
     }
     if (stepName === 'assist') {
+      const others = roster.filter((p) => p.id !== d.scorer_id);
+      const block = new Set(lines[blockOf(d.scorer_id)] || []);
+      const groups = block.size ? [
+        { title: `Block des Torschützen (L${blockOf(d.scorer_id) + 1})`, players: others.filter((p) => block.has(p.id)) },
+        { title: 'Weitere Spieler', players: others.filter((p) => !block.has(p.id)) },
+      ].filter((g) => g.players.length) : [{ players: others }];
       return html`
         <p class="d step-q">Assist?</p>
         <button class="btn full" onClick=${() => next({ assist_id: null })}>Kein Assist</button>
-        <${PlayerGrid} players=${roster.filter((p) => p.id !== d.scorer_id)}
-          selected=${d.assist_id} onPick=${(pid) => next({ assist_id: pid })} />`;
+        ${groups.map((g) => html`
+          ${g.title && html`<h3 class="meta-label group-label">${g.title}</h3>`}
+          <${PlayerGrid} players=${g.players} selected=${d.assist_id} onPick=${(pid) => next({ assist_id: pid })} />`)}`;
     }
     if (stepName === 'onice') {
       const selected = new Set(d.on_ice);
+      const scorerBlock = blockOf(d.scorer_id);
+      const blk = new Set(scorerBlock != null && scorerBlock !== live.line ? lines[scorerBlock] : []);
       const cur = new Set(lines[live.line] || []);
       const prev = new Set(live.prevLine != null ? lines[live.prevLine] || [] : []);
       const groups = [
-        { title: `Aktuelle Linie ${lines.length ? live.line + 1 : ''}`, players: fieldPlayers.filter((p) => cur.has(p.id)) },
-        { title: `Vorherige Linie ${live.prevLine != null ? live.prevLine + 1 : ''}`, players: fieldPlayers.filter((p) => prev.has(p.id) && !cur.has(p.id)) },
-        { title: 'Weitere Spieler', players: fieldPlayers.filter((p) => !cur.has(p.id) && !prev.has(p.id)) },
+        { title: `Block des Torschützen (L${scorerBlock + 1})`, players: fieldPlayers.filter((p) => blk.has(p.id)) },
+        { title: `Aktuelle Linie ${lines.length ? live.line + 1 : ''}`, players: fieldPlayers.filter((p) => cur.has(p.id) && !blk.has(p.id)) },
+        { title: `Vorherige Linie ${live.prevLine != null ? live.prevLine + 1 : ''}`, players: fieldPlayers.filter((p) => prev.has(p.id) && !cur.has(p.id) && !blk.has(p.id)) },
+        { title: 'Weitere Spieler', players: fieldPlayers.filter((p) => !cur.has(p.id) && !prev.has(p.id) && !blk.has(p.id)) },
       ].filter((g) => g.players.length);
       const n = selected.size;
       return html`
