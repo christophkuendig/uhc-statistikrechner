@@ -1,4 +1,4 @@
-import { html, useState } from '../../vendor/preact-htm.module.js';
+import { html, useState, useEffect, useRef } from '../../vendor/preact-htm.module.js';
 import * as api from '../api.js';
 import * as store from '../store.js';
 import { TEAM_NAME, SU_TEAM_ID } from '../config.js';
@@ -26,10 +26,24 @@ function ImportButton({ onResult }) {
   return html`<button class="btn big" disabled=${busy} onClick=${run}>${busy ? 'Importiere…' : 'Spielplan importieren'}</button>`;
 }
 
+// Spiel-Nummer bei swiss unihockey ("su:1106069") – ordnet zwei Spiele am selben Tag
+const gameNo = (m) => Number(m.external_id?.slice(3)) || Infinity;
+
 export function MatchesView({ user }) {
   const [importResult, setImportResult] = useState(null);
-  const matches = store.list('matches').sort((a, b) => b.date.localeCompare(a.date));
+  const matches = store.list('matches')
+    .sort((a, b) => a.date.localeCompare(b.date) || gameNo(a) - gameNo(b));
   const currentSeason = seasonOf(today());
+  // Nächstes (oder heutiges) Match – dorthin wird beim Öffnen gescrollt
+  const next = matches.find((m) => m.date >= today());
+
+  const jumped = useRef(false);
+  useEffect(() => {
+    const el = !jumped.current && document.querySelector('.match-grid [data-next]');
+    if (!el) return;
+    jumped.current = true;
+    el.scrollIntoView({ block: 'center' });
+  });
 
   const bySeason = new Map();
   for (const m of matches) {
@@ -58,7 +72,7 @@ export function MatchesView({ user }) {
               const s = score(store.list('events', (e) => e.match_id === m.id));
               const result = s.us > s.them ? 'win' : s.us < s.them ? 'loss' : 'draw';
               return html`
-                <li class="rv">
+                <li class="rv" data-next=${m === next || undefined}>
                   <a href=${`#/match/${m.id}`} class=${`card fx match-card ${m.home ? 'home' : ''}`}>
                     <span class="top">
                       <span class="d date">${formatDate(m.date)}</span>
